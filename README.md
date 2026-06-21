@@ -125,6 +125,21 @@ GRADIO_SERVER_PORT=7861 python app.py
 7. 按「生成角色」。
 8. 查看角色卡、生成圖片、控制圖預覽，並下載角色卡。
 
+## 介面欄位與生成設定說明
+
+- **生成模型：** 選擇圖片生成後端。`SDXL + ControlNet Depth` 適合展示姿勢 / 構圖控制；`Z-Image Turbo` 適合產生較高品質的文字生圖結果。
+- **角色概念：** 主要創作輸入，描述角色身份、世界觀、能力或視覺特徵，例如「黑暗奇幻時間刺客」或「星際遺跡獵人」。
+- **角色概念範例：** 提供多組可直接套用的中文題材，選擇後會自動填入角色概念欄位，使用者仍可再修改細節。
+- **美術風格：** 使用中文選項控制整體視覺方向，後端會轉成英文 style prompt，例如「科幻機甲」會轉成 sci-fi game concept art 相關描述。
+- **額外條件：** 用來補充角色概念之外的限制，例如武器、陣營、色彩、情緒、年代、材質、禁止元素或構圖需求。這些文字會交給 Gemma 一起產生角色設定與 diffusion prompt。
+- **姿勢 / 構圖參考圖：** 只在 `SDXL + ControlNet Depth` 模式使用。上傳後會轉成 depth-like control image，控制角色的大致姿勢與構圖。
+- **Seed：** 控制隨機性。相同 prompt、模型與設定下，使用相同 seed 較容易重現類似結果。
+- **生成步數：** diffusion denoising steps。步數越高通常越細緻但越慢；Z-Image Turbo 會自動限制在較低步數以符合 turbo 模型設計。
+- **Guidance scale：** 控制模型遵守文字 prompt 的程度。數值太低可能偏離描述，太高可能畫面僵硬或產生 artifact。
+- **ControlNet 強度：** 只在 SDXL + ControlNet 模式使用。數值越高越貼近控制圖，但太高會壓制 prompt 的創作空間。
+- **寬度 / 高度：** 控制輸出解析度。RTX 4080 16GB 下建議從 `768x768` 開始；若 VRAM 不足可降到 `640x640`。
+- **Gemma temperature：** 控制 LLM 角色設定的創意程度。較低會更穩定，較高會更有變化。
+
 ## 測試方式
 
 輕量測試：
@@ -178,4 +193,3 @@ GitHub repository 只追蹤程式碼與說明文件，不追蹤生成輸出：
   - 展示講稿與本機 demo 筆記
 
 `314832005_HW7.txt` 內容為公開 GitHub repository 連結。
-
