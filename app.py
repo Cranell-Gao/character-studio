@@ -36,6 +36,16 @@ def apply_concept_preset(preset: str, current: str) -> str:
     return CONCEPT_PRESETS.get(preset) or current
 
 
+def update_model_controls(image_model: str) -> tuple[dict, dict, dict]:
+    uses_controlnet = image_model == "SDXL + ControlNet Depth"
+    reference_label = "姿勢 / 構圖參考圖" if uses_controlnet else "Z-Image Turbo 不使用參考圖控制"
+    return (
+        gr.update(label=reference_label, visible=uses_controlnet, value=None),
+        gr.update(visible=uses_controlnet),
+        gr.update(visible=uses_controlnet, value=None),
+    )
+
+
 def check_system() -> str:
     ok, message = ollama.healthcheck()
     status = "系統就緒" if ok else "需要檢查"
@@ -75,7 +85,6 @@ def generate_character(
         )
 
         if image_model == "Z-Image Turbo":
-            control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
             config = ZImageGenerationConfig(
                 width=int(width),
                 height=int(height),
@@ -89,6 +98,7 @@ def generate_character(
                 config=config,
             )
             image_path = save_z_image(image, OUTPUT_DIR)
+            control_image = None
         else:
             control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
             config = GenerationConfig(
@@ -182,6 +192,12 @@ def build_demo() -> gr.Blocks:
             with gr.Column(scale=6):
                 output_image = gr.Image(label="生成角色圖", type="pil", format="png")
                 control_preview = gr.Image(label="ControlNet 控制圖預覽", type="pil", format="png")
+
+        image_model.change(
+            fn=update_model_controls,
+            inputs=image_model,
+            outputs=[reference_image, control, control_preview],
+        )
 
         spec_markdown = gr.Markdown(label="角色卡")
         with gr.Row():
