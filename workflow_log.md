@@ -107,42 +107,41 @@ PLEASE IMPLEMENT THIS PLAN:
 
 ### 整體核心流程 Prompt
 
-以下整理為本專題最終可重現的核心任務 Prompt，等同於將本次作業需求、環境條件、模型選擇與實作流程整合後交給 Agent 的完整指令：
+以下整理為比較貼近本次實際對話語氣的核心任務 Prompt，將作業需求、環境條件、模型選擇與實作流程整合成一段可以交給 Agent 的完整指令：
 
 ```text
-請以 /home/cranell/Desktop/HW/HW7 作為專案根目錄，完成一個 HW7 生成式 AI 專題，專題名稱為「AI Character Design Studio」。
+可以幫我完成 HW7 的作業嗎？請以 /home/cranell/Desktop/HW/HW7 作為專案根目錄，做一個 LLM + Diffusion 結合的生成式 AI 專題，題目可以叫做「AI Character Design Studio」。
 
-請建立並使用新的 conda 環境 hw7-character-studio，Python 3.11，並提供 requirements.txt 與 environment.yml，讓專案可以在本機重現。
+我希望你幫我建立一個新的 conda 環境 hw7-character-studio，使用 Python 3.11，並把 requirements.txt 跟 environment.yml 都整理好，讓之後可以在本機重現整個專案。
 
-本機條件如下：
-- 使用者學號：314832005
-- 作業根目錄：/home/cranell/Desktop/HW/HW7
-- 本機已安裝 Ollama
-- 本機已有 Ollama 模型 gemma4:12b
-- GPU 為 NVIDIA RTX 4080 16GB
-- GitHub repository 為 https://github.com/Cranell-Gao/character-studio
+我的基本條件如下：
+- 學號是 314832005
+- 作業根目錄是 /home/cranell/Desktop/HW/HW7
+- 我的電腦已經裝好 Ollama
+- Ollama 裡已經有 gemma4:12b
+- 顯示卡是 RTX 4080 16GB
+- GitHub repo 是 https://github.com/Cranell-Gao/character-studio
 
-請實作一個 Gradio App，核心流程如下：
-1. 使用者輸入角色概念，或從內建中文角色概念範例中選擇。
-2. 使用者選擇中文美術風格，例如科幻機甲、奇幻 RPG、黑暗奇幻、動漫遊戲美術、寫實概念設計。
-3. App 呼叫本機 Ollama gemma4:12b，請 Gemma 扮演資深遊戲角色美術總監與 prompt engineer。
-4. Gemma 必須回傳結構化 JSON，包含角色名稱、角色定位、背景故事、角色能力、服裝設計、色彩配置、英文 visual prompt 與英文 negative prompt。
-5. 角色卡內容使用繁體中文；diffusion prompt 與 negative prompt 使用英文，以提升圖像模型穩定性。
-6. 使用者可選擇兩種影像生成模式：
-   - SDXL + ControlNet Depth：使用 stabilityai/stable-diffusion-xl-base-1.0 與 diffusers/controlnet-depth-sdxl-1.0，支援上傳姿勢 / 構圖參考圖，並轉為 depth-like control image。
-   - Z-Image Turbo：使用 Tongyi-MAI/Z-Image-Turbo 作為高品質文字生圖模式，不使用本專案的 ControlNet 參考圖控制。
-7. 當選擇 Z-Image Turbo 時，UI 必須隱藏參考圖、ControlNet 強度與控制圖預覽，避免誤導使用者。
-8. 使用者可調整 seed、生成步數、guidance scale、ControlNet 強度、寬度、高度與 Gemma temperature。
-9. App 必須顯示 Gemma 產生的繁體中文角色卡、生成圖片、ControlNet 控制圖預覽（僅 SDXL 模式）、角色卡下載與圖片下載。
-10. 每次生成都必須保存具名輸出，不可覆蓋舊檔：
-    - 圖片：<生成模型>_<美術風格>_<角色名稱>.png
-    - 角色卡：<生成模型>_<美術風格>_<角色名稱>.md
-    - 若同名已存在，請自動加上 _01、_02、_03 等代數編號。
-11. Gradio 圖片預覽與「下載生成圖片」必須直接指向具名 PNG 檔案，避免顯示 Gradio 暫存檔名。
-12. 輸出目錄必須固定為 HW7/outputs，不受啟動工作目錄影響。
-13. app.py 不應固定只使用 7860 port；若未設定 GRADIO_SERVER_PORT，請讓 Gradio 自動尋找可用 port。若使用者指定 GRADIO_SERVER_PORT，則使用指定 port。
+我想要做一個 Gradio App，整體流程大概是：
+1. 使用者可以輸入角色概念，也可以從幾個中文範例裡面選。
+2. 美術風格那欄希望用中文，例如科幻機甲、奇幻 RPG、黑暗奇幻、動漫遊戲美術、寫實概念設計。
+3. App 先呼叫本機 Ollama 的 gemma4:12b，讓 Gemma 幫我產生角色設定。
+4. Gemma 請扮演遊戲角色美術總監和 prompt engineer，輸出結構化 JSON。
+5. JSON 內容要有角色名稱、角色定位、背景故事、角色能力、服裝設計、色彩配置、英文 visual prompt 和英文 negative prompt。
+6. 角色卡希望是繁體中文，但 diffusion prompt 和 negative prompt 可以維持英文，因為圖像模型通常吃英文比較穩。
+7. 圖像生成希望有兩種模式：
+   - SDXL + ControlNet Depth：用 stabilityai/stable-diffusion-xl-base-1.0 加 diffusers/controlnet-depth-sdxl-1.0，可以上傳姿勢或構圖參考圖，然後轉成 depth-like control image。
+   - Z-Image Turbo：用 Tongyi-MAI/Z-Image-Turbo，作為畫質比較好的文字生圖模式，但這個模式先不要接本專案的 ControlNet。
+8. 如果使用者選 Z-Image Turbo，希望 UI 可以把參考圖、ControlNet 強度和控制圖預覽藏起來，避免看起來像有接 ControlNet。
+9. 生成設定希望可以調 seed、steps、guidance scale、ControlNet 強度、寬高和 Gemma temperature。
+10. App 要顯示角色卡、生成圖片、ControlNet 控制圖預覽（只有 SDXL 模式需要）、角色卡下載和圖片下載。
+11. 輸出檔案不要一直覆蓋 latest，希望每次生成的圖片和 md 都用「模型名稱 + 美術風格 + 角色名稱」命名。
+12. 如果同名就自動變成 _01、_02、_03 這種代數編號。
+13. Gradio 上面顯示或下載圖片時，也希望看到具名 PNG，不要變成 Gradio 暫存檔名或舊的 character_001.png。
+14. 輸出目錄請固定在 HW7/outputs，不要因為從不同目錄啟動就寫到別的地方。
+15. app.py 不要只綁死 7860，如果 port 被占用，讓 Gradio 自己找下一個可用 port；但如果我設定 GRADIO_SERVER_PORT，就用我指定的。
 
-請建立以下模組：
+程式結構可以幫我拆成這些模組：
 - app.py：Gradio UI 與完整生成流程。
 - src/ollama_client.py：呼叫 Ollama /api/chat，預設模型 gemma4:12b，並使用 keep_alive: 0s 釋放 VRAM。
 - src/prompt_engine.py：建立 Gemma prompt、解析 JSON、處理中文美術風格映射與角色卡 markdown。
@@ -153,7 +152,7 @@ PLEASE IMPLEMENT THIS PLAN:
 - scripts_smoke_test.py：提供 Ollama、diffusion import 與 Z-Image import 的 smoke test。
 - tests/：加入針對 prompt parsing、control image、輸出命名、Gradio 輸出路徑與 port 設定的測試。
 
-請撰寫繁體中文 README.md，內容需包含：
+README 請幫我全部整理成繁體中文，內容至少包含：
 - 專題名稱
 - GitHub repository 連結
 - 系統架構
@@ -167,7 +166,7 @@ PLEASE IMPLEMENT THIS PLAN:
 - 測試方式
 - GitHub 不追蹤 outputs 的說明
 
-請撰寫 workflow_log.md，記錄：
+workflow_log.md 也請幫我整理好，記錄：
 - 作業需求與目錄指定
 - 使用者關鍵 Prompt
 - Agent 協助規劃與實作過程
@@ -176,13 +175,13 @@ PLEASE IMPLEMENT THIS PLAN:
 - SDXL + ControlNet 與 Z-Image Turbo 的技術取捨
 - 遇到的技術問題與修正，例如 CUDA / VRAM、Ollama keep_alive、Z-Image 不接本專案 ControlNet、Gradio 控制圖顯示、輸出檔名覆蓋、Gradio port 被占用等
 
-請將 GitHub repository 連結寫入 314832005_HW7.txt。GitHub repository 只需要推送程式碼與說明文件，不需要追蹤 outputs 生成結果、314832005_HW7.png 或展示講稿。
+另外請把 GitHub repository 連結寫進 314832005_HW7.txt。GitHub 上只需要放程式碼和說明文件，不需要把 outputs 的生成結果、314832005_HW7.png 或展示講稿推上去。
 
-最後請執行測試並確認：
+最後請幫我測一下：
 - pytest 通過
 - Gradio app 可以 build
 - Ollama gemma4:12b 可用
-- SDXL + ControlNet 與 Z-Image Turbo 至少可透過 App 完成生成流程
+- SDXL + ControlNet 和 Z-Image Turbo 都可以透過 App 完成生成流程
 ```
 
 ### 補上 GitHub 並要求繁體中文文件
