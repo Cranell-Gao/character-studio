@@ -203,12 +203,9 @@ GitHub repository 只追蹤程式碼與說明文件，不追蹤生成輸出：
   - `requirements.txt`
   - `README.md`
   - `workflow_log.md`
-  - `314832005_HW7.txt`
 - 不追蹤：
   - `outputs/*.png`
   - `outputs/*.md`
   - `outputs/*.json`
   - `314832005_HW7.png`
-  - 展示講稿與本機 demo 筆記
-
-`314832005_HW7.txt` 內容為公開 GitHub repository 連結。
+  - 本機 demo 筆記
