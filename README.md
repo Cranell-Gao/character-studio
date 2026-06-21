@@ -9,7 +9,7 @@ GitHub Repository: [Cranell-Gao/character-studio](https://github.com/Cranell-Gao
 - **LLM 層：** Ollama `gemma4:12b` 回傳結構化 JSON，內容包含角色名稱、背景、能力、服裝、色彩配置、diffusion prompt 與 negative prompt。
 - **Prompt 處理層：** `src/prompt_engine.py` 負責驗證並修復 Gemma 的 JSON 輸出，最後整理成可下載的角色卡。
 - **ControlNet 控制層：** `src/control_image.py` 將上傳的參考圖轉換成 depth-like control image；若未上傳圖片，系統會自動產生柔和的全身姿勢深度圖。
-- **Diffusion 層：** `src/diffusion_pipeline.py` 載入 `stabilityai/stable-diffusion-xl-base-1.0` 與 `diffusers/controlnet-depth-sdxl-1.0`，使用 ControlNet 進行受控影像生成。
+- **Diffusion 層：** `src/diffusion_pipeline.py` 載入 `stabilityai/stable-diffusion-xl-base-1.0` 與 `diffusers/controlnet-depth-sdxl-1.0`，使用 ControlNet 進行受控影像生成；`src/z_image_pipeline.py` 則提供 `Tongyi-MAI/Z-Image-Turbo` 高品質快速生成模式。
 - **展示介面：** `app.py` 使用 Gradio 建立互動式 App，支援角色概念輸入、風格選擇、參考圖上傳、參數調整、圖片預覽與角色卡匯出。
 
 ## 環境建置
@@ -87,9 +87,15 @@ Diffusion 匯入測試：
 
 ```bash
 python scripts_smoke_test.py --diffusion-import
+python scripts_smoke_test.py --z-image-import
 ```
 
-完整影像生成請透過 Gradio 介面操作。第一次執行 SDXL ControlNet 時，若本機尚未快取權重，程式會從 Hugging Face 下載模型。
+完整影像生成請透過 Gradio 介面操作。第一次執行 SDXL ControlNet 或 Z-Image Turbo 時，若本機尚未快取權重，程式會從 Hugging Face 下載模型。
+
+## 生成模式
+
+- **SDXL + ControlNet Depth：** 預設模式，支援上傳姿勢或構圖參考圖，適合作為 diffusion pipeline 客製化與 ControlNet 技術展示。
+- **Z-Image Turbo：** 高品質快速生成模式，使用 `Tongyi-MAI/Z-Image-Turbo`。此模式不使用參考圖控制，但通常可產生比 SDXL base 更精緻的角色概念圖。
 
 ## 繳交檔案
 
@@ -103,6 +109,7 @@ python scripts_smoke_test.py --diffusion-import
 
 - 使用本機 LLM `gemma4:12b` 進行角色設定生成與 prompt engineering。
 - 使用 SDXL + ControlNet Depth 實作 diffusion pipeline 客製化。
+- 新增 Z-Image Turbo 作為高品質 open-source text-to-image 模型選項。
 - 使用 Gradio 封裝為可互動 App。
 - Ollama client 會送出 `keep_alive: 0s`，讓 Gemma 回覆後釋放 VRAM，避免與 SDXL ControlNet 搶佔 RTX 4080 16GB 的 GPU 記憶體。
 - 預設生成尺寸為 `768x768`；若 VRAM 壓力較高，可降至 `640x640` 或減少 inference steps。

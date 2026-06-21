@@ -11,6 +11,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Smoke-test the HW7 character studio.")
     parser.add_argument("--ollama", action="store_true", help="Call local Ollama Gemma model.")
     parser.add_argument("--diffusion-import", action="store_true", help="Import diffusion pipeline classes.")
+    parser.add_argument("--z-image-import", action="store_true", help="Import Z-Image Turbo pipeline classes.")
     args = parser.parse_args()
 
     control = make_depth_control_image(None, width=256, height=256)
@@ -37,7 +38,12 @@ def main() -> None:
         pipe = CharacterDiffusionPipeline()
         print(f"diffusion device: {pipe.device}")
 
+    if args.z_image_import:
+        from src.z_image_pipeline import CharacterZImagePipeline
+
+        pipe = CharacterZImagePipeline()
+        print(f"z-image device: {pipe.device}")
+
 
 if __name__ == "__main__":
     main()
-

@@ -1,7 +1,7 @@
 # Install CUDA PyTorch first, or use environment.yml for the full conda setup.
 accelerate>=0.33.0
 controlnet-aux>=0.0.9
-diffusers>=0.31.0
+diffusers>=0.38.0
 gradio>=5.0.0
 opencv-python>=4.10.0
 pillow>=10.4.0
@@ -14,4 +14,3 @@ sentencepiece>=0.2.0
 torch
 torchvision
 transformers>=4.44.0
-

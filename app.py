@@ -10,12 +10,14 @@ from src.control_image import make_depth_control_image
 from src.diffusion_pipeline import CharacterDiffusionPipeline, GenerationConfig, save_image
 from src.ollama_client import OllamaClient
 from src.prompt_engine import STYLE_PRESETS, CharacterSpec, generate_character_spec
+from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig, save_z_image
 
 
 OUTPUT_DIR = Path("outputs")
 CARD_PATH = OUTPUT_DIR / "latest_character_card.md"
 
 diffusion = CharacterDiffusionPipeline()
+z_image = CharacterZImagePipeline()
 ollama = OllamaClient()
 
 
@@ -35,6 +37,7 @@ def _write_card(spec: CharacterSpec, image_path: Path | None) -> str:
 
 
 def generate_character(
+    image_model: str,
     concept: str,
     style: str,
     extra_notes: str,
@@ -55,22 +58,40 @@ def generate_character(
             client=ollama,
             temperature=llm_temperature,
         )
-        control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
-        config = GenerationConfig(
-            width=int(width),
-            height=int(height),
-            steps=int(steps),
-            guidance_scale=float(guidance_scale),
-            controlnet_conditioning_scale=float(control_strength),
-            seed=int(seed),
-        )
-        image = diffusion.generate(
-            prompt=spec.visual_prompt,
-            negative_prompt=spec.negative_prompt,
-            control_image=control_image,
-            config=config,
-        )
-        image_path = save_image(image, OUTPUT_DIR)
+
+        if image_model == "Z-Image Turbo":
+            control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
+            config = ZImageGenerationConfig(
+                width=int(width),
+                height=int(height),
+                steps=min(int(steps), 16),
+                guidance_scale=0.0,
+                seed=int(seed),
+            )
+            image = z_image.generate(
+                prompt=spec.visual_prompt,
+                negative_prompt=spec.negative_prompt,
+                config=config,
+            )
+            image_path = save_z_image(image, OUTPUT_DIR)
+        else:
+            control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
+            config = GenerationConfig(
+                width=int(width),
+                height=int(height),
+                steps=int(steps),
+                guidance_scale=float(guidance_scale),
+                controlnet_conditioning_scale=float(control_strength),
+                seed=int(seed),
+            )
+            image = diffusion.generate(
+                prompt=spec.visual_prompt,
+                negative_prompt=spec.negative_prompt,
+                control_image=control_image,
+                config=config,
+            )
+            image_path = save_image(image, OUTPUT_DIR)
+
         card_file = _write_card(spec, image_path)
         return spec.to_markdown(), image, control_image, card_file, image_path.as_posix()
     except Exception as exc:
@@ -91,6 +112,12 @@ def build_demo() -> gr.Blocks:
 
         with gr.Row():
             with gr.Column(scale=5):
+                image_model = gr.Radio(
+                    label="生成模型",
+                    choices=["SDXL + ControlNet Depth", "Z-Image Turbo"],
+                    value="SDXL + ControlNet Depth",
+                    info="ControlNet 模式支援姿勢/構圖控制；Z-Image Turbo 模式畫質較佳但不使用參考圖控制。",
+                )
                 concept = gr.Textbox(
                     label="角色概念",
                     value="賽博龐克煉金術師，使用霓虹符文與機械義肢戰鬥",
@@ -138,6 +165,7 @@ def build_demo() -> gr.Blocks:
         generate.click(
             fn=generate_character,
             inputs=[
+                image_model,
                 concept,
                 style,
                 extra_notes,
