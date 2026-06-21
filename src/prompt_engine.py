@@ -18,6 +18,18 @@ STYLE_PRESETS: dict[str, str] = {
     "realistic concept art": "realistic AAA game concept art, detailed materials, believable anatomy",
 }
 
+STYLE_LABELS: dict[str, str] = {
+    "奇幻 RPG": "fantasy",
+    "科幻機甲": "sci-fi",
+    "黑暗奇幻": "dark fantasy",
+    "動漫遊戲美術": "anime game art",
+    "寫實概念設計": "realistic concept art",
+}
+
+
+def normalize_style(style: str) -> str:
+    return STYLE_LABELS.get(style, style)
+
 
 @dataclass
 class CharacterSpec:
@@ -64,6 +76,7 @@ Visual prompt rules: include full body, centered character, readable silhouette,
 
 
 def build_user_prompt(concept: str, style: str, extra_notes: str = "") -> str:
+    style = normalize_style(style)
     style_text = STYLE_PRESETS.get(style, STYLE_PRESETS["fantasy"])
     notes = extra_notes.strip() or "No extra constraints."
     return (
@@ -97,6 +110,7 @@ def _string_list(value: Any, fallback: list[str]) -> list[str]:
 
 
 def spec_from_response(response: str, concept: str, style: str) -> CharacterSpec:
+    style = normalize_style(style)
     data = _extract_json(response)
     style_text = STYLE_PRESETS.get(style, STYLE_PRESETS["fantasy"])
     visual_prompt = str(data.get("visual_prompt") or "").strip()

@@ -9,7 +9,7 @@ import gradio as gr
 from src.control_image import make_depth_control_image
 from src.diffusion_pipeline import CharacterDiffusionPipeline, GenerationConfig, save_image
 from src.ollama_client import OllamaClient
-from src.prompt_engine import STYLE_PRESETS, CharacterSpec, generate_character_spec
+from src.prompt_engine import STYLE_LABELS, CharacterSpec, generate_character_spec
 from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig, save_z_image
 
 
@@ -125,8 +125,8 @@ def build_demo() -> gr.Blocks:
                 )
                 style = gr.Dropdown(
                     label="美術風格",
-                    choices=list(STYLE_PRESETS.keys()),
-                    value="sci-fi",
+                    choices=list(STYLE_LABELS.keys()),
+                    value="科幻機甲",
                 )
                 extra_notes = gr.Textbox(
                     label="額外條件",
