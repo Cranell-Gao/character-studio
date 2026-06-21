@@ -1,2 +1,1 @@
-TODO: Replace this line with the public GitHub repository URL before submission.
-
+https://github.com/Cranell-Gao/character-studio

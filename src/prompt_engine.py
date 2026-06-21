@@ -36,11 +36,11 @@ class CharacterSpec:
         colors = ", ".join(self.color_palette)
         return (
             f"# {self.name}\n\n"
-            f"**Archetype:** {self.archetype}\n\n"
-            f"## Background\n{self.background}\n\n"
-            f"## Abilities\n{abilities}\n\n"
-            f"## Outfit\n{self.outfit}\n\n"
-            f"## Color Palette\n{colors}\n\n"
+            f"**角色定位：** {self.archetype}\n\n"
+            f"## 背景故事\n{self.background}\n\n"
+            f"## 角色能力\n{abilities}\n\n"
+            f"## 服裝設計\n{self.outfit}\n\n"
+            f"## 色彩配置\n{colors}\n\n"
             f"## Diffusion Prompt\n{self.visual_prompt}\n\n"
             f"## Negative Prompt\n{self.negative_prompt}\n"
         )
@@ -135,4 +135,3 @@ def generate_character_spec(
         temperature=temperature,
     )
     return spec_from_response(response, concept=concept, style=style)
-
