@@ -62,15 +62,17 @@ SYSTEM_PROMPT = """You are a senior game character art director and prompt engin
 Return only valid compact JSON. Do not use markdown fences.
 The JSON schema is:
 {
-  "name": "short character name",
-  "archetype": "short role",
-  "background": "2-4 sentences",
-  "abilities": ["3-5 concise abilities"],
-  "outfit": "costume and silhouette description",
-  "color_palette": ["3-6 color names"],
+  "name": "short character name in Traditional Chinese",
+  "archetype": "short role in Traditional Chinese",
+  "background": "2-4 sentences in Traditional Chinese",
+  "abilities": ["3-5 concise abilities in Traditional Chinese"],
+  "outfit": "costume and silhouette description in Traditional Chinese",
+  "color_palette": ["3-6 color names in Traditional Chinese"],
   "visual_prompt": "English SDXL prompt for one full-body game character concept art image",
   "negative_prompt": "English negative prompt"
 }
+Use Traditional Chinese for name, archetype, background, abilities, outfit, and color_palette.
+Use English only for visual_prompt and negative_prompt because the image models respond better to English prompts.
 Visual prompt rules: include full body, centered character, readable silhouette, detailed costume, neutral background, and the selected art style. Avoid text, watermark, logo, cropped body, extra limbs.
 """
 
@@ -83,7 +85,7 @@ def build_user_prompt(concept: str, style: str, extra_notes: str = "") -> str:
         f"Character concept: {concept.strip()}\n"
         f"Target style: {style} ({style_text})\n"
         f"Extra constraints: {notes}\n"
-        "Create a coherent game character design and diffusion prompt."
+        "Create a coherent game character design. Write the character card fields in Traditional Chinese, but keep the diffusion prompts in English."
     )
 
 

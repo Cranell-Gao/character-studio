@@ -16,9 +16,24 @@ from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig
 OUTPUT_DIR = Path("outputs")
 CARD_PATH = OUTPUT_DIR / "latest_character_card.md"
 
+CONCEPT_PRESETS = {
+    "自訂輸入": "",
+    "賽博龐克煉金術師": "賽博龐克煉金術師，使用霓虹符文與機械義肢戰鬥",
+    "黑暗奇幻時間刺客": "黑暗奇幻風格的時間刺客，使用破碎懷錶與影子短刃戰鬥",
+    "星際遺跡獵人": "星際遺跡獵人，穿著輕型外骨骼裝甲，探索失落文明與古代 AI 神殿",
+    "東方符咒機甲師": "東方符咒機甲師，操控紙符無人機與青銅機械獸",
+    "蒸汽龐克天空騎士": "蒸汽龐克天空騎士，配戴黃銅飛行翼與高壓蒸汽長槍",
+    "末日荒原醫療兵": "末日荒原醫療兵，背負移動手術裝置，穿梭污染沙漠救援倖存者",
+    "水晶森林守護者": "水晶森林守護者，能與發光植物溝通，使用半透明晶體長弓",
+}
+
 diffusion = CharacterDiffusionPipeline()
 z_image = CharacterZImagePipeline()
 ollama = OllamaClient()
+
+
+def apply_concept_preset(preset: str, current: str) -> str:
+    return CONCEPT_PRESETS.get(preset) or current
 
 
 def check_system() -> str:
@@ -122,6 +137,17 @@ def build_demo() -> gr.Blocks:
                     label="角色概念",
                     value="賽博龐克煉金術師，使用霓虹符文與機械義肢戰鬥",
                     lines=3,
+                )
+                concept_preset = gr.Dropdown(
+                    label="角色概念範例",
+                    choices=list(CONCEPT_PRESETS.keys()),
+                    value="賽博龐克煉金術師",
+                    info="選擇範例會自動填入上方角色概念；也可以保留自訂輸入。",
+                )
+                concept_preset.change(
+                    fn=apply_concept_preset,
+                    inputs=[concept_preset, concept],
+                    outputs=concept,
                 )
                 style = gr.Dropdown(
                     label="美術風格",

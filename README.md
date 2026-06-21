@@ -95,8 +95,9 @@ python scripts_smoke_test.py --z-image-import
 ## 生成模式
 
 - **SDXL + ControlNet Depth：** 預設模式，支援上傳姿勢或構圖參考圖，適合作為 diffusion pipeline 客製化與 ControlNet 技術展示。
-- **Z-Image Turbo：** 高品質快速生成模式，使用 `Tongyi-MAI/Z-Image-Turbo`。此模式不使用參考圖控制，但通常可產生比 SDXL base 更精緻的角色概念圖。
+- **Z-Image Turbo：** 高品質快速生成模式，使用 `Tongyi-MAI/Z-Image-Turbo`。此模式不使用參考圖控制，但通常可產生比 SDXL base 更精緻的角色概念圖。Z-Image 生態已有 ControlNet/Union 類模型，但目前不是本專案採用的標準 diffusers ControlNet 接法；為了維持作業展示穩定性，本專案保留 SDXL + ControlNet 作為受控生成模式，Z-Image Turbo 則作為高品質文字生圖模式。
 - **美術風格：** 介面提供「奇幻 RPG」、「科幻機甲」、「黑暗奇幻」、「動漫遊戲美術」、「寫實概念設計」等中文選項；後端會自動轉換成英文 prompt style，維持模型生成品質。
+- **角色概念範例：** 介面提供多組中文角色概念範例，可一鍵帶入輸入框後再自行修改。
 
 ## 繳交檔案
 
