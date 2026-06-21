@@ -80,7 +80,7 @@ def generate_character(
     width: int,
     height: int,
     llm_temperature: float,
-) -> tuple[str, Any, Any, str, str]:
+) -> tuple[str, str | None, Any, str, str, str]:
     try:
         spec = generate_character_spec(
             concept=concept,
@@ -124,10 +124,11 @@ def generate_character(
         stem = output_stem(image_model, style, spec.name)
         image_path = save_named_image(image, stem, OUTPUT_DIR)
         card_file = _write_card(spec, image_path, stem)
-        return spec.to_markdown(), image, control_image, card_file, image_path.as_posix()
+        image_file = image_path.as_posix()
+        return spec.to_markdown(), image_file, control_image, card_file, image_file, image_file
     except Exception as exc:
         error_markdown = f"## 生成失敗\n\n```text\n{exc}\n```"
-        return error_markdown, None, None, "", ""
+        return error_markdown, None, None, "", "", ""
 
 
 def build_demo() -> gr.Blocks:
@@ -196,7 +197,7 @@ def build_demo() -> gr.Blocks:
                 generate = gr.Button("生成角色", variant="primary")
 
             with gr.Column(scale=6):
-                output_image = gr.Image(label="生成角色圖", type="pil", format="png")
+                output_image = gr.Image(label="生成角色圖", type="filepath", format="png")
                 control_preview = gr.Image(label="ControlNet 控制圖預覽", type="pil", format="png")
 
         image_model.change(
@@ -208,6 +209,7 @@ def build_demo() -> gr.Blocks:
         spec_markdown = gr.Markdown(label="角色卡")
         with gr.Row():
             card_file = gr.File(label="下載角色卡")
+            image_file = gr.File(label="下載生成圖片")
             image_path = gr.Textbox(label="圖片儲存路徑", interactive=False)
 
         generate.click(
@@ -226,7 +228,7 @@ def build_demo() -> gr.Blocks:
                 height,
                 llm_temperature,
             ],
-            outputs=[spec_markdown, output_image, control_preview, card_file, image_path],
+            outputs=[spec_markdown, output_image, control_preview, card_file, image_file, image_path],
         )
 
     return demo

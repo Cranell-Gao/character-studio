@@ -157,6 +157,8 @@ Z_Image_Turbo_科幻機甲_幻影煉金師_02.png
 
 舊版曾使用的 `outputs/latest_character_card.md` 不再作為主要輸出，也不會在新版 app 中繼續覆寫。請以介面中的「下載角色卡」與「圖片儲存路徑」為準，或直接查看 `HW7/outputs/` 內的具名檔案。
 
+Gradio 介面中的「生成角色圖」預覽與「下載生成圖片」也會直接指向這個具名 `.png`，避免瀏覽器下載時顯示成 Gradio 暫存檔名或舊版 `character_001.png` 樣式。
+
 ## 測試方式
 
 輕量測試：
