@@ -135,7 +135,7 @@ def build_demo() -> gr.Blocks:
     with gr.Blocks(title="AI Character Design Studio") as demo:
         gr.Markdown(
             "# AI Character Design Studio\n"
-            "使用 Gemma4 12B 產生角色設定，再透過 SDXL + ControlNet 生成遊戲角色概念圖。"
+            "使用 Gemma4 12B 產生角色設定，並可選擇 SDXL + ControlNet Depth 或 Z-Image Turbo 生成遊戲角色概念圖。"
         )
 
         status = gr.Markdown(value=check_system)
