@@ -7,10 +7,11 @@ from typing import Any
 import gradio as gr
 
 from src.control_image import make_depth_control_image
-from src.diffusion_pipeline import CharacterDiffusionPipeline, GenerationConfig, save_image
+from src.diffusion_pipeline import CharacterDiffusionPipeline, GenerationConfig
 from src.ollama_client import OllamaClient
+from src.output_naming import output_stem, save_named_image, save_named_markdown
 from src.prompt_engine import STYLE_LABELS, CharacterSpec, generate_character_spec
-from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig, save_z_image
+from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig
 
 
 OUTPUT_DIR = Path("outputs")
@@ -52,13 +53,19 @@ def check_system() -> str:
     return f"**{status}:** {message}"
 
 
-def _write_card(spec: CharacterSpec, image_path: Path | None) -> str:
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+def _card_markdown(spec: CharacterSpec, image_path: Path | None) -> str:
     body = spec.to_markdown()
     if image_path is not None:
         body += f"\n## 生成圖片\n{image_path.as_posix()}\n"
+    return body
+
+
+def _write_card(spec: CharacterSpec, image_path: Path | None, stem: str) -> str:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    body = _card_markdown(spec, image_path)
+    card_path = save_named_markdown(body, stem, OUTPUT_DIR)
     CARD_PATH.write_text(body, encoding="utf-8")
-    return CARD_PATH.as_posix()
+    return card_path.as_posix()
 
 
 def generate_character(
@@ -97,7 +104,6 @@ def generate_character(
                 negative_prompt=spec.negative_prompt,
                 config=config,
             )
-            image_path = save_z_image(image, OUTPUT_DIR)
             control_image = None
         else:
             control_image = make_depth_control_image(reference_image, width=int(width), height=int(height))
@@ -115,9 +121,10 @@ def generate_character(
                 control_image=control_image,
                 config=config,
             )
-            image_path = save_image(image, OUTPUT_DIR)
 
-        card_file = _write_card(spec, image_path)
+        stem = output_stem(image_model, style, spec.name)
+        image_path = save_named_image(image, stem, OUTPUT_DIR)
+        card_file = _write_card(spec, image_path, stem)
         return spec.to_markdown(), image, control_image, card_file, image_path.as_posix()
     except Exception as exc:
         error_markdown = f"## 生成失敗\n\n```text\n{exc}\n```"
