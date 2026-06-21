@@ -1,17 +1,38 @@
 # HW7 Agent 協作紀錄
 
-## 1. 需求分析
+## 1. 作業需求
 
-本作業要求完成一個生成式 AI 專題，必須包含可互動 App、原始碼、README、Agent workflow log 與展示素材。技術面需具體應用 LLM、Diffusion Models 或 Flow Matching，並鼓勵使用 Agent 輔助完成題目發想、架構設計、程式碼生成與除錯。
+本作業要求完成一個生成式 AI 專題，內容需包含：
 
-最初方向是本機 Ollama 聊天工具。後續依照課程要求與展示完整度，將題目升級為 LLM + Diffusion 結合的角色設計工作台。
+- 可互動展示介面 App
+- 原始碼與依賴環境設定
+- `README.md`
+- Agent workflow log
+- 展示素材
+- 公開 GitHub repository 連結，並寫入 `314832005_HW7.txt`
 
-## 2. 環境探索
+技術要求需具體應用 LLM、Diffusion Models 或 Flow Matching。本專題最後選擇同時展示 LLM 與 Diffusion。
+
+## 2. 初始環境與目錄要求
+
+使用者指定：
+
+```text
+請協助我完成本次的作業，以HW7為根目錄，創建一個全新的python環境(conda)用以執行作業的程式需求，作業要求如目錄中的Requirements，並與我規劃詳細作業內容
+```
+
+探索結果：
 
 - 工作根目錄：`/home/cranell/Desktop/HW`
-- HW7 專案目錄：`/home/cranell/Desktop/HW/HW7`
+- 作業需求檔案：`/home/cranell/Desktop/HW/Requirements.txt`
+- 專案根目錄：`/home/cranell/Desktop/HW/HW7`
 - 學號：`314832005`
 - GitHub Repository：[Cranell-Gao/character-studio](https://github.com/Cranell-Gao/character-studio)
+
+本機環境：
+
+- Conda：`/home/cranell/miniforge3/bin/conda`
+- 新環境：`hw7-character-studio`
 - Ollama 已安裝。
 - 本機 Ollama 模型：
   - `gemma4:12b`
@@ -21,32 +42,62 @@
   - NVIDIA GeForce RTX 4080
   - 16GB VRAM
   - Driver `580.159.03`
-- Hugging Face cache 已包含 SDXL Turbo 與 SD1.5 相關資源。最初主線選擇 SDXL + SDXL ControlNet Depth，以取得較佳影像品質與更明確的 diffusion 技術展示；後續依據 Arena open-source text-to-image leaderboard 與 Hugging Face 模型資訊，新增 `Tongyi-MAI/Z-Image-Turbo` 作為高品質快速生成模式。
 
-## 3. 專題規劃
+## 3. 題目形成過程
 
-選定專題：
-
-> AI Character Design Studio
-
-核心流程：
-
-1. 使用者輸入角色概念。
-2. Gemma4 12B 產生結構化角色設定與 SDXL prompt。
-3. 使用者可上傳姿勢或構圖參考圖。
-4. App 將參考圖轉換為 depth-like control image。
-5. 使用者可選擇 SDXL + ControlNet Depth 或 Z-Image Turbo 生成角色概念圖。
-6. App 匯出角色卡 Markdown 與生成圖片。
-
-## 4. 關鍵 Prompt 紀錄
-
-### 題目規劃 Prompt
+一開始討論過本機 Ollama 聊天工具，但使用者後續提出：
 
 ```text
 我目前的電腦已經安裝了ollama，並已經有Gemma4 12b的模型，我想要做LLM+diffusion結合的題目
 ```
 
-### 實作 Prompt
+接著補充：
+
+```text
+顯示卡為RTX 4080 16GB
+```
+
+因此專題改為 LLM + Diffusion 角色設計系統。最終題目：
+
+> AI Character Design Studio
+
+核心流程：
+
+1. 使用者輸入角色概念或選擇範例。
+2. Ollama `gemma4:12b` 生成角色設定與英文 diffusion prompt。
+3. 使用者選擇生成模式：
+   - SDXL + ControlNet Depth
+   - Z-Image Turbo
+4. App 生成角色圖。
+5. App 匯出角色卡與圖片。
+
+## 4. 關鍵使用者 Prompt 紀錄
+
+### 建立 HW7 專案與 conda 環境
+
+```text
+請協助我完成本次的作業，以HW7為根目錄，創建一個全新的python環境(conda)用以執行作業的程式需求，作業要求如目錄中的Requirements，並與我規劃詳細作業內容
+```
+
+### 提供學號
+
+```text
+314832005
+```
+
+### 指定本機 Ollama 與 LLM + Diffusion 題目
+
+```text
+我目前的電腦已經安裝了ollama，並已經有Gemma4 12b的模型，我想要做LLM+diffusion結合的題目
+```
+
+### 指定硬體
+
+```text
+顯示卡為RTX 4080 16GB
+```
+
+### 要求實作計畫
 
 ```text
 PLEASE IMPLEMENT THIS PLAN:
@@ -54,53 +105,151 @@ PLEASE IMPLEMENT THIS PLAN:
 ...
 ```
 
-### App 內部 Gemma System Prompt 摘要
+### 補上 GitHub 並要求繁體中文文件
 
-App 要求 Gemma 扮演資深遊戲角色美術總監與 prompt engineer，並回傳 compact JSON。JSON 內容包含角色名稱、角色定位、背景故事、能力、服裝、色彩配置、SDXL visual prompt 與 negative prompt。
+```text
+可以將專案的說明等等都換成繁體中文嗎，補上我的github，[Cranell-Gao/character-studio](https://github.com/Cranell-Gao/character-studio)
+```
 
-## 5. 實作重點
+### 詢問模型品質並指定 Arena leaderboard
 
-- `src/ollama_client.py`：處理本機 Ollama API 呼叫與健康檢查。
-- `src/prompt_engine.py`：建立 LLM prompt，並在模型輸出含 markdown fence 時仍能抽取 JSON。
-- `src/prompt_engine.py` 同時提供中文美術風格選項與英文 style preset 的對應，讓介面中文化但不犧牲 prompt 品質。
-- Gemma 輸出格式調整為角色設定欄位使用繁體中文，diffusion prompt 與 negative prompt 保持英文。
-- `src/control_image.py`：產生 depth-like control image；若沒有上傳參考圖，會產生柔和的預設全身姿勢圖。
-- `src/diffusion_pipeline.py`：載入 SDXL + ControlNet，使用 fp16、attention slicing 與 CPU offload 降低 VRAM 壓力。
-- `src/z_image_pipeline.py`：載入 Z-Image Turbo，提供不依賴 ControlNet 的高品質快速生成模式。
-- `app.py`：使用 Gradio Blocks 封裝完整互動式介面。
+```text
+圖片的品質是受到diffusion model能力的限制對嗎，可以幫我看一下這個網站中https://arena.ai/leaderboard/text-to-image?license=open-source，有什麼更強且適合我們專案的模型嗎
+```
 
-## 6. 風險與解法
+### 要求新增 Z-Image Turbo 並上傳 GitHub
 
-- **第一次 diffusion 可能下載權重：** README 已註明 SDXL ControlNet 權重可能會從 Hugging Face 下載。
-- **VRAM 壓力：** 預設使用 `768x768`；若 GPU 記憶體不足，可降到 `640x640` 或減少 steps。
-- **LLM 與 diffusion 共用 VRAM：** Ollama client 在回覆後送出 `keep_alive: 0s`，讓 `gemma4:12b` 釋放 VRAM；diffusion 端也啟用 PyTorch expandable CUDA segments。
-- **LLM JSON 格式不穩：** prompt parser 可從純 JSON 或 markdown code fence 中抽取 JSON。
-- **Ollama 服務未啟動：** App 介面提供系統狀態檢查，會顯示 Ollama 或 `gemma4:12b` 是否可用。
+```text
+好，可以嘗試幫我增加，並一併將整個專案上傳到github
+```
 
-## 7. 驗證紀錄
+### 要求中文化 UI 與角色輸出
 
-- 已建立 conda 環境：`hw7-character-studio`。
-- `python -m pip check`：通過。
-- `pytest -q`：4 個測試通過。
-- CUDA 驗證：PyTorch 可偵測 NVIDIA GeForce RTX 4080。
-- Ollama smoke test：`gemma4:12b` 成功產生有效角色卡。
-- 第一次 SDXL ControlNet 生成曾發生 CUDA OOM，原因是 Gemma 仍常駐 VRAM。
-- 修正方式：加入 Ollama `keep_alive: 0s`、降低預設 ControlNet strength，並改用較柔和的預設 depth pose。
-- 最終 diffusion smoke test 成功，生成 `outputs/character_002.png`。
-- 已將最終展示圖複製為 `314832005_HW7.png`。
-- 新增 Z-Image Turbo 匯入測試，確認目前 diffusers 環境支援 `ZImagePipeline`。
-- Z-Image Turbo 實際生成測試成功，輸出 `outputs/z_image_character_001.png`。
-- 因 Z-Image Turbo 展示圖品質較佳，已更新 `314832005_HW7.png` 作為最終展示素材。
-- 介面新增多組角色概念範例，可直接填入角色概念欄位。
-- 修正 Z-Image Turbo 模式的 UI：由於此模式不使用 ControlNet，切換到 Z-Image Turbo 時會隱藏參考圖、ControlNet 強度與控制圖預覽，避免誤導使用者。
+```text
+整體我覺得非常好，不過美術風格選擇的那欄希望可以改成中文這樣
+```
 
-## 8. 最終交付項目
+```text
+所以如果是用Z-Image Turbo就不能接controlnet嗎，還有最下面的LLM角色介紹也都幫我弄成中文的形式，角色概念那邊也幫我多加幾組可選擇的選項進去
+```
+
+### 修正 Z-Image Turbo 模式的 ControlNet 預覽
+
+```text
+我有發現一個問題，假如說我是使用SD的話controlnet的預覽圖假如說我沒有上傳，會有預設的圖出現在控制圖預覽，但是我用Z-Image Turbo是不能接controlnet的，但是還是會顯示出來這樣，可以改掉哪
+```
+
+### 最終整理文件與 GitHub 內容
+
+```text
+可以幫我更新一下所有的文件敘述成最新的狀態嗎，包含workflow，README等等的，把我們觀察到的等等都寫進去這樣，然後我覺得推上去github的不需要我們的output，314832005_HW7.png也不用，只需要程式跟說明應該就可以了，然後關鍵prompt可以把我叫你設定的環境、專案內容的問答等等的，跟目錄指定等等德也寫進去，並最後幫我生成一個我要怎麼從零展示給大家看的流程與講稿(流程與講稿不用上傳到github)
+```
+
+## 5. App 內部 Gemma Prompt 設計
+
+App 要求 Gemma 扮演資深遊戲角色美術總監與 prompt engineer，並回傳 compact JSON。
+
+設計重點：
+
+- `name`、`archetype`、`background`、`abilities`、`outfit`、`color_palette` 使用繁體中文。
+- `visual_prompt` 與 `negative_prompt` 使用英文，因為圖像模型對英文 prompt 較穩定。
+- prompt 要求包含 full body、centered character、readable silhouette、detailed costume、neutral background。
+- parser 可從純 JSON 或 markdown code fence 中抽取 JSON。
+
+## 6. 實作模組
+
+- `app.py`：Gradio UI 與事件串接。
+- `src/ollama_client.py`：本機 Ollama API client，並透過 `keep_alive: 0s` 釋放 Gemma VRAM。
+- `src/prompt_engine.py`：角色設定 prompt、JSON parsing、中文風格選單對英文 style preset 的映射。
+- `src/control_image.py`：參考圖轉 depth-like control image；沒有上傳圖時提供柔和預設姿勢圖。
+- `src/diffusion_pipeline.py`：SDXL + ControlNet Depth pipeline。
+- `src/z_image_pipeline.py`：Z-Image Turbo pipeline。
+- `scripts_smoke_test.py`：Ollama、SDXL、Z-Image 輕量 smoke test。
+- `tests/`：prompt parsing 與 control image 的單元測試。
+
+## 7. 模型選擇與觀察
+
+### SDXL + ControlNet Depth
+
+優點：
+
+- ControlNet 生態成熟。
+- 可展示「受控生成」與「pipeline 客製化」。
+- 適合作業要求中的 ControlNet / diffusion pipeline 技術點。
+
+限制：
+
+- `stable-diffusion-xl-base-1.0` 是通用 base model，角色概念圖細緻度不一定最佳。
+- ControlNet strength 太高時，控制圖會壓過 prompt 創作空間。
+
+### Z-Image Turbo
+
+加入原因：
+
+- 依據 Arena open-source text-to-image leaderboard 與 Hugging Face 模型資訊，Z-Image Turbo 屬於較新的高品質 open-source text-to-image 模型。
+- 實測生成的角色概念圖比 SDXL base 更精緻。
+
+限制：
+
+- 本專案沒有將 Z-Image Turbo 接到 ControlNet。
+- Z-Image 生態有 ControlNet / Union 類模型，但不是目前專案採用的標準 diffusers ControlNet 接法。
+- 因此 Z-Image Turbo 在本專案中定位為「高品質文字生圖模式」。
+
+## 8. 除錯與修正紀錄
+
+- **Ollama socket 權限：** 沙盒環境一開始無法直接連 `127.0.0.1:11434`，後續使用提權確認 `gemma4:12b` 存在並可呼叫。
+- **CUDA 可見性：** 一開始非提權下 PyTorch 看不到 CUDA；提權後確認 RTX 4080 可用。
+- **SDXL + ControlNet OOM：** 第一次 diffusion smoke test 發生 CUDA OOM，原因是 Gemma 仍常駐 VRAM。修正為 Ollama request 加上 `keep_alive: 0s`。
+- **預設 ControlNet 圖太強：** 早期預設圖像像火柴人，生成結果被控制圖過度影響。後續改為柔和深度人體輪廓，並降低預設 ControlNet strength。
+- **Z-Image Turbo UI 誤導：** Z-Image 不使用 ControlNet，但原本仍顯示控制圖預覽。後續切換到 Z-Image Turbo 時隱藏參考圖、ControlNet 強度與控制圖預覽。
+- **中文化：** README、workflow log、UI、美術風格、角色卡輸出皆改為繁體中文；diffusion prompt 保持英文。
+
+## 9. 驗證紀錄
+
+- 建立 conda 環境：`hw7-character-studio`
+- `python -m pip check`：通過
+- `pytest -q`：4 tests passed
+- CUDA：PyTorch 可偵測 NVIDIA GeForce RTX 4080
+- Ollama smoke test：`gemma4:12b` 成功產生繁體中文角色卡
+- SDXL + ControlNet smoke test：成功生成 `outputs/character_002.png`
+- Z-Image Turbo import test：成功載入 `ZImagePipeline`
+- Z-Image Turbo 實際生成測試：成功生成 `outputs/z_image_character_001.png`
+- Gradio App build：通過
+- GitHub push：已推送至 `Cranell-Gao/character-studio`
+
+## 10. Repository 整理
+
+最後依使用者要求，GitHub repository 只保留程式與說明，不追蹤生成輸出。
+
+追蹤內容：
 
 - `app.py`
 - `src/`
+- `tests/`
 - `environment.yml`
 - `requirements.txt`
 - `README.md`
 - `workflow_log.md`
 - `314832005_HW7.txt`
+
+不追蹤內容：
+
+- `outputs/*.png`
+- `outputs/*.md`
+- `outputs/*.json`
 - `314832005_HW7.png`
+- 本機展示流程與講稿
+
+## 11. 最終專案狀態
+
+目前專案具備：
+
+- 本機 LLM 角色設定生成
+- SDXL + ControlNet 受控生成
+- Z-Image Turbo 高品質文字生圖
+- 繁體中文 UI
+- 中文美術風格選項
+- 中文角色概念範例
+- 繁體中文角色卡輸出
+- GitHub repository 連結檔 `314832005_HW7.txt`
+

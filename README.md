@@ -1,20 +1,59 @@
 # AI Character Design Studio
 
-AI Character Design Studio 是 HW7 的生成式 AI 專題，整合本機大型語言模型與擴散模型。系統使用 Ollama `gemma4:12b` 產生遊戲角色設定與 SDXL prompt，再透過 SDXL + ControlNet Depth 依照上傳的姿勢或構圖參考圖生成角色概念圖。
+AI Character Design Studio 是 HW7 的生成式 AI 專題，整合本機大型語言模型與擴散模型，目標是讓使用者用自然語言快速生成「遊戲角色設定」與「角色概念圖」。
 
 GitHub Repository: [Cranell-Gao/character-studio](https://github.com/Cranell-Gao/character-studio)
 
+## 專題摘要
+
+- **LLM：** 使用本機 Ollama `gemma4:12b` 產生角色名稱、定位、背景故事、能力、服裝、色彩配置與英文 diffusion prompt。
+- **Diffusion：** 提供兩種生成模式：
+  - `SDXL + ControlNet Depth`：支援姿勢 / 構圖參考圖，展示 ControlNet 受控生成。
+  - `Z-Image Turbo`：高品質 open-source text-to-image 模式，適合產生更精緻的角色概念圖。
+- **App：** 使用 Gradio 建立互動式介面，支援中文角色概念範例、中文美術風格選項、參考圖上傳、參數調整、角色卡匯出與圖片儲存。
+- **語言設計：** 角色卡內容使用繁體中文；`Diffusion Prompt` 與 `Negative Prompt` 保持英文，以維持圖像模型生成品質。
+
 ## 系統架構
 
-- **LLM 層：** Ollama `gemma4:12b` 回傳結構化 JSON，內容包含角色名稱、背景、能力、服裝、色彩配置、diffusion prompt 與 negative prompt。
-- **Prompt 處理層：** `src/prompt_engine.py` 負責驗證並修復 Gemma 的 JSON 輸出，最後整理成可下載的角色卡。
-- **ControlNet 控制層：** `src/control_image.py` 將上傳的參考圖轉換成 depth-like control image；若未上傳圖片，系統會自動產生柔和的全身姿勢深度圖。
-- **Diffusion 層：** `src/diffusion_pipeline.py` 載入 `stabilityai/stable-diffusion-xl-base-1.0` 與 `diffusers/controlnet-depth-sdxl-1.0`，使用 ControlNet 進行受控影像生成；`src/z_image_pipeline.py` 則提供 `Tongyi-MAI/Z-Image-Turbo` 高品質快速生成模式。
-- **展示介面：** `app.py` 使用 Gradio 建立互動式 App，支援角色概念輸入、風格選擇、參考圖上傳、參數調整、圖片預覽與角色卡匯出。
+- **LLM 層：** `src/ollama_client.py` 呼叫 Ollama OpenAI-like API，並使用 `keep_alive: 0s` 讓 `gemma4:12b` 回答後釋放 VRAM。
+- **Prompt 處理層：** `src/prompt_engine.py` 要求 Gemma 回傳 compact JSON，並在模型輸出包含 markdown code fence 時自動抽取 JSON。
+- **ControlNet 控制層：** `src/control_image.py` 將上傳參考圖轉換成 depth-like control image；若使用 SDXL 模式但沒有上傳圖片，系統會產生柔和的預設全身姿勢控制圖。
+- **SDXL 生成層：** `src/diffusion_pipeline.py` 載入 `stabilityai/stable-diffusion-xl-base-1.0` 與 `diffusers/controlnet-depth-sdxl-1.0`，用於受控角色生成。
+- **Z-Image 生成層：** `src/z_image_pipeline.py` 載入 `Tongyi-MAI/Z-Image-Turbo`，用於高品質文字生圖。
+- **展示介面：** `app.py` 使用 Gradio Blocks 串接 LLM、ControlNet、SDXL、Z-Image 與檔案匯出。
+
+## 生成模式說明
+
+### SDXL + ControlNet Depth
+
+此模式適合展示「擴散模型管線客製化」與「受控生成」：
+
+- 可上傳姿勢 / 構圖參考圖。
+- 會顯示 ControlNet 控制圖預覽。
+- 可調整 ControlNet 強度。
+- 若沒有上傳參考圖，會使用內建柔和全身姿勢圖。
+
+### Z-Image Turbo
+
+此模式適合展示更高品質的 open-source text-to-image 生成：
+
+- 使用 `Tongyi-MAI/Z-Image-Turbo`。
+- 不使用本專案的 ControlNet 流程。
+- 切換到此模式時，介面會隱藏參考圖上傳、ControlNet 強度與控制圖預覽，避免誤導。
+
+> 註：Z-Image 生態已有 ControlNet / Union 類模型，但目前不是本專案採用的標準 diffusers ControlNet 接法。為了維持作業展示穩定性，本專案保留 SDXL + ControlNet 作為受控生成模式，Z-Image Turbo 作為高品質文字生圖模式。
 
 ## 環境建置
 
-本專題以 NVIDIA RTX 4080 16GB 與已安裝 Ollama 的本機環境為主要測試平台。
+本專題主要測試環境：
+
+- GPU：NVIDIA GeForce RTX 4080 16GB
+- Driver：`580.159.03`
+- LLM runtime：Ollama
+- LLM model：`gemma4:12b`
+- Python environment：conda `hw7-character-studio`
+
+建立環境：
 
 ```bash
 cd /home/cranell/Desktop/HW/HW7
@@ -22,7 +61,7 @@ conda env create -f environment.yml
 conda activate hw7-character-studio
 ```
 
-若要改用 pip，請先安裝 CUDA 版 PyTorch，再安裝其他套件：
+若改用 pip，請先安裝 CUDA 版 PyTorch，再安裝其他套件：
 
 ```bash
 pip install -r requirements.txt
@@ -30,19 +69,19 @@ pip install -r requirements.txt
 
 ## Ollama 設定
 
-若 Ollama 尚未啟動，請先執行：
+若 Ollama 尚未啟動：
 
 ```bash
 ollama serve
 ```
 
-確認本機模型清單：
+確認模型：
 
 ```bash
 ollama list
 ```
 
-本專題預設使用以下模型：
+應可看到：
 
 ```text
 gemma4:12b
@@ -56,17 +95,35 @@ cd /home/cranell/Desktop/HW/HW7
 python app.py
 ```
 
-開啟本機 Gradio 網址，預設為：
+開啟：
 
 ```text
 http://127.0.0.1:7860
 ```
 
-若 `7860` port 已被占用，可改用：
+若 `7860` port 已被占用：
 
 ```bash
 GRADIO_SERVER_PORT=7861 python app.py
 ```
+
+## 使用方式
+
+1. 選擇生成模型：
+   - `SDXL + ControlNet Depth`
+   - `Z-Image Turbo`
+2. 在「角色概念範例」選擇預設題材，或直接修改「角色概念」文字。
+3. 選擇「美術風格」：
+   - 奇幻 RPG
+   - 科幻機甲
+   - 黑暗奇幻
+   - 動漫遊戲美術
+   - 寫實概念設計
+4. 可在「額外條件」補充武器、陣營、時代背景、色彩或情緒。
+5. 若使用 SDXL + ControlNet，可上傳姿勢 / 構圖參考圖。
+6. 調整 seed、生成步數、解析度、guidance scale 與 ControlNet 強度。
+7. 按「生成角色」。
+8. 查看角色卡、生成圖片、控制圖預覽，並下載角色卡。
 
 ## 測試方式
 
@@ -92,27 +149,33 @@ python scripts_smoke_test.py --z-image-import
 
 完整影像生成請透過 Gradio 介面操作。第一次執行 SDXL ControlNet 或 Z-Image Turbo 時，若本機尚未快取權重，程式會從 Hugging Face 下載模型。
 
-## 生成模式
+## 重要觀察與修正
 
-- **SDXL + ControlNet Depth：** 預設模式，支援上傳姿勢或構圖參考圖，適合作為 diffusion pipeline 客製化與 ControlNet 技術展示。
-- **Z-Image Turbo：** 高品質快速生成模式，使用 `Tongyi-MAI/Z-Image-Turbo`。此模式不使用參考圖控制，因此介面會隱藏參考圖上傳、ControlNet 強度與控制圖預覽。Z-Image 生態已有 ControlNet/Union 類模型，但目前不是本專案採用的標準 diffusers ControlNet 接法；為了維持作業展示穩定性，本專案保留 SDXL + ControlNet 作為受控生成模式，Z-Image Turbo 則作為高品質文字生圖模式。
-- **美術風格：** 介面提供「奇幻 RPG」、「科幻機甲」、「黑暗奇幻」、「動漫遊戲美術」、「寫實概念設計」等中文選項；後端會自動轉換成英文 prompt style，維持模型生成品質。
-- **角色概念範例：** 介面提供多組中文角色概念範例，可一鍵帶入輸入框後再自行修改。
+- 圖片品質會受到 diffusion model 能力、prompt、解析度、steps、ControlNet 強度與是否使用專門微調模型影響。
+- SDXL base 的好處是 ControlNet 生態成熟，適合展示受控生成；缺點是角色概念圖細緻度不一定最佳。
+- Z-Image Turbo 在實測中能產生更精緻的角色概念圖，因此新增為高品質模式。
+- 一開始 SDXL + ControlNet 曾發生 CUDA OOM，原因是 `gemma4:12b` 仍常駐 VRAM。後續加入 Ollama `keep_alive: 0s`，讓 Gemma 回答後釋放 GPU 記憶體。
+- Z-Image Turbo 不使用本專案的 ControlNet，因此 UI 已改為切換到 Z-Image 時隱藏參考圖、ControlNet 強度與控制圖預覽。
 
-## 繳交檔案
+## Repository 內容
 
-- 原始碼與環境設定檔皆包含於此 repository。
-- `README.md` 說明專題名稱、系統架構與本機執行方式。
-- `workflow_log.md` 記錄 Agent 協作流程、關鍵 prompt、環境探索、除錯與驗證紀錄。
-- `314832005_HW7.txt` 已填入公開 GitHub repository 連結。
-- `314832005_HW7.png` 為展示用生成圖片。
+GitHub repository 只追蹤程式碼與說明文件，不追蹤生成輸出：
 
-## 技術重點
+- 追蹤：
+  - `app.py`
+  - `src/`
+  - `tests/`
+  - `environment.yml`
+  - `requirements.txt`
+  - `README.md`
+  - `workflow_log.md`
+  - `314832005_HW7.txt`
+- 不追蹤：
+  - `outputs/*.png`
+  - `outputs/*.md`
+  - `outputs/*.json`
+  - `314832005_HW7.png`
+  - 展示講稿與本機 demo 筆記
 
-- 使用本機 LLM `gemma4:12b` 進行角色設定生成與 prompt engineering。
-- 使用 SDXL + ControlNet Depth 實作 diffusion pipeline 客製化。
-- 新增 Z-Image Turbo 作為高品質 open-source text-to-image 模型選項。
-- 使用 Gradio 封裝為可互動 App。
-- Ollama client 會送出 `keep_alive: 0s`，讓 Gemma 回覆後釋放 VRAM，避免與 SDXL ControlNet 搶佔 RTX 4080 16GB 的 GPU 記憶體。
-- 預設生成尺寸為 `768x768`；若 VRAM 壓力較高，可降至 `640x640` 或減少 inference steps。
-- `stabilityai/sdxl-turbo` 可作為未來快速生成 fallback，但本專題主線採用 ControlNet，以符合擴散模型管線客製化的作業要求。
+`314832005_HW7.txt` 內容為公開 GitHub repository 連結。
+
