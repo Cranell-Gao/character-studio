@@ -14,8 +14,8 @@ from src.prompt_engine import STYLE_LABELS, CharacterSpec, generate_character_sp
 from src.z_image_pipeline import CharacterZImagePipeline, ZImageGenerationConfig
 
 
-OUTPUT_DIR = Path("outputs")
-CARD_PATH = OUTPUT_DIR / "latest_character_card.md"
+PROJECT_DIR = Path(__file__).resolve().parent
+OUTPUT_DIR = PROJECT_DIR / "outputs"
 
 CONCEPT_PRESETS = {
     "自訂輸入": "",
@@ -64,7 +64,6 @@ def _write_card(spec: CharacterSpec, image_path: Path | None, stem: str) -> str:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     body = _card_markdown(spec, image_path)
     card_path = save_named_markdown(body, stem, OUTPUT_DIR)
-    CARD_PATH.write_text(body, encoding="utf-8")
     return card_path.as_posix()
 
 

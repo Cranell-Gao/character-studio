@@ -142,7 +142,7 @@ GRADIO_SERVER_PORT=7861 python app.py
 
 ## 輸出檔案命名
 
-每次生成都會在 `outputs/` 內保存一組不覆蓋的輸出：
+每次生成都會固定在專案根目錄的 `outputs/` 內保存一組不覆蓋的輸出；不論從哪個工作目錄啟動 `app.py`，都會寫到 `HW7/outputs/`：
 
 - 圖片：`<生成模型>_<美術風格>_<角色名稱>.png`
 - 角色卡：`<生成模型>_<美術風格>_<角色名稱>.md`
@@ -155,7 +155,7 @@ Z_Image_Turbo_科幻機甲_幻影煉金師_01.png
 Z_Image_Turbo_科幻機甲_幻影煉金師_02.png
 ```
 
-同時，`outputs/latest_character_card.md` 仍會保留為「最近一次生成角色卡」的捷徑，方便快速查看最新結果。
+舊版曾使用的 `outputs/latest_character_card.md` 不再作為主要輸出，也不會在新版 app 中繼續覆寫。請以介面中的「下載角色卡」與「圖片儲存路徑」為準，或直接查看 `HW7/outputs/` 內的具名檔案。
 
 ## 測試方式
 
