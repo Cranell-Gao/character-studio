@@ -95,13 +95,13 @@ cd /home/cranell/Desktop/HW/HW7
 python app.py
 ```
 
-開啟：
+啟動後依照終端機顯示的網址開啟，通常會是：
 
 ```text
 http://127.0.0.1:7860
 ```
 
-若 `7860` port 已被占用：
+若 `7860` port 已被占用，Gradio 會自動改用下一個可用 port，例如 `7861` 或 `7862`。如果你想指定固定 port，可以使用：
 
 ```bash
 GRADIO_SERVER_PORT=7861 python app.py

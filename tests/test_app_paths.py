@@ -10,6 +10,16 @@ def test_output_dir_is_fixed_to_project_outputs():
     assert OUTPUT_DIR == PROJECT_DIR / "outputs"
 
 
+def test_configured_server_port_auto_selects_when_unset(monkeypatch):
+    monkeypatch.delenv("GRADIO_SERVER_PORT", raising=False)
+    assert app.configured_server_port() is None
+
+
+def test_configured_server_port_uses_environment_value(monkeypatch):
+    monkeypatch.setenv("GRADIO_SERVER_PORT", "7862")
+    assert app.configured_server_port() == 7862
+
+
 def test_generate_character_returns_named_image_path_for_gradio(monkeypatch, tmp_path):
     spec = CharacterSpec(
         name="測試角色",

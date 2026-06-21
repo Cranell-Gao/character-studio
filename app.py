@@ -234,6 +234,13 @@ def build_demo() -> gr.Blocks:
     return demo
 
 
+def configured_server_port() -> int | None:
+    port = os.environ.get("GRADIO_SERVER_PORT", "").strip()
+    return int(port) if port else None
+
+
 if __name__ == "__main__":
-    port = int(os.environ.get("GRADIO_SERVER_PORT", "7860"))
-    build_demo().queue(default_concurrency_limit=1).launch(server_name="127.0.0.1", server_port=port)
+    build_demo().queue(default_concurrency_limit=1).launch(
+        server_name="127.0.0.1",
+        server_port=configured_server_port(),
+    )
