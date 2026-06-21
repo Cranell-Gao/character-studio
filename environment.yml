@@ -1,0 +1,27 @@
+name: hw7-character-studio
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pytorch-cuda=12.4
+  - pip:
+      - accelerate>=0.33.0
+      - controlnet-aux>=0.0.9
+      - diffusers>=0.31.0
+      - gradio>=5.0.0
+      - opencv-python>=4.10.0
+      - pillow>=10.4.0
+      - protobuf>=5.27.0
+      - pytest>=8.3.0
+      - python-dotenv>=1.0.1
+      - requests>=2.32.0
+      - safetensors>=0.4.5
+      - sentencepiece>=0.2.0
+      - transformers>=4.44.0
+

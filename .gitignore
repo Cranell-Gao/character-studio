@@ -1,0 +1,9 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.gradio/
+.env
+outputs/*.png
+outputs/*.md
+outputs/*.json
+!outputs/.gitkeep
