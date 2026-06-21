@@ -13,6 +13,8 @@
 
 技術要求需具體應用 LLM、Diffusion Models 或 Flow Matching。本專題最後選擇同時展示 LLM 與 Diffusion。
 
+本次 Agent 協作主要透過 Codex CLI 進行。Codex CLI 負責讀取專案檔案、建立與修改程式碼、執行測試、整理文件、協助 Git commit / push，並在每次需求變更後同步更新 README 與 workflow log。
+
 ## 2. 初始環境與目錄要求
 
 使用者指定：
@@ -56,6 +58,8 @@
 ```text
 顯示卡為RTX 4080 16GB
 ```
+
+題目並不是一開始就固定，而是經過多次討論後逐步收斂。討論過程中先確認本機已有 Ollama 與 Gemma4 12B，再根據 RTX 4080 16GB 的硬體條件決定可以採用較完整的 diffusion pipeline。後續又比較了 SDXL + ControlNet 與 Z-Image Turbo 的定位，最後將題目定為 LLM 產生角色設定、diffusion 負責角色圖生成的設計工作台。
 
 因此專題改為 LLM + Diffusion 角色設計系統。最終題目：
 
