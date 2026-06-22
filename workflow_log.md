@@ -13,7 +13,7 @@
 
 技術要求需具體應用 LLM、Diffusion Models 或 Flow Matching。本專題最後選擇同時展示 LLM 與 Diffusion。
 
-本次 Agent 協作主要透過 Codex CLI 進行。Codex CLI 負責讀取專案檔案、建立與修改程式碼、執行測試、整理文件、協助 Git commit / push，並在每次需求變更後同步更新 README 與 workflow log。
+本次 Agent 協作主要透過 Codex CLI 進行，並搭配本機 IDE 檢視檔案與管理專案狀態。也就是說，IDE 主要作為開發介面與檔案瀏覽環境；Codex CLI 則作為實際協作 Agent，負責讀取專案檔案、建立與修改程式碼、執行 shell 指令與測試、整理文件、協助 Git commit / push，並在每次需求變更後同步更新 README 與 workflow log。
 
 ## 2. 初始環境與目錄要求
 
