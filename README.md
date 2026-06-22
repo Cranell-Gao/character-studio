@@ -2,8 +2,6 @@
 
 AI Character Design Studio 是 HW7 的生成式 AI 專題，整合本機大型語言模型與擴散模型，目標是讓使用者用自然語言快速生成「遊戲角色設定」與「角色概念圖」。
 
-GitHub Repository: [Cranell-Gao/character-studio](https://github.com/Cranell-Gao/character-studio)
-
 ## 專題摘要
 
 - **LLM：** 使用本機 Ollama `gemma4:12b` 產生角色名稱、定位、背景故事、能力、服裝、色彩配置與英文 diffusion prompt。
@@ -56,7 +54,7 @@ GitHub Repository: [Cranell-Gao/character-studio](https://github.com/Cranell-Gao
 建立環境：
 
 ```bash
-cd /home/cranell/Desktop/HW/HW7
+cd /path/to/HW7
 conda env create -f environment.yml
 conda activate hw7-character-studio
 ```
@@ -91,7 +89,7 @@ gemma4:12b
 
 ```bash
 conda activate hw7-character-studio
-cd /home/cranell/Desktop/HW/HW7
+cd /path/to/HW7
 python app.py
 ```
 
@@ -207,5 +205,5 @@ GitHub repository 只追蹤程式碼與說明文件，不追蹤生成輸出：
   - `outputs/*.png`
   - `outputs/*.md`
   - `outputs/*.json`
-  - `314832005_HW7.png`
+  - `*_HW7.png`
   - 本機 demo 筆記

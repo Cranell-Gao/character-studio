@@ -7,6 +7,6 @@ outputs/*.png
 outputs/*.md
 outputs/*.json
 !outputs/.gitkeep
-314832005_HW7.txt
-314832005_HW7.png
+*_HW7.txt
+*_HW7.png
 demo_flow_and_script.md
